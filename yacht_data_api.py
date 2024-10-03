@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, HttpUrl
+from pydantic import HttpUrl
 from urllib.parse import urlparse
 import yacht_data_llm_scraper as scraper
 from dotenv import load_dotenv
@@ -20,12 +20,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class YachtUrlInput(BaseModel):
-    url: HttpUrl
+# Remove the YachtUrlInput class as we're no longer using it
 
 @app.post("/extract-yacht-data/")
-async def extract_yacht_data(input_data: YachtUrlInput):
-    url = str(input_data.url)
+async def extract_yacht_data(url: str = Form(...)):
+    # Validate the URL
+    try:
+        HttpUrl(url)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid URL")
     
     # Extract the domain from the URL
     parsed_url = urlparse(url)
