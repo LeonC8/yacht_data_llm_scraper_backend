@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
 from urllib.parse import urlparse
 import yacht_data_llm_scraper as scraper
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI()
 

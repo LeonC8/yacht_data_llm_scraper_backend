@@ -1,12 +1,13 @@
 import urllib.request
 import time
 from bs4 import BeautifulSoup
+import os
 from openai import OpenAI
 from pydantic import BaseModel
 from typing import Optional, List
 
 # OpenAI API key setup
-client = OpenAI(api_key="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")
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 class YachtData(BaseModel):
     yacht_name: Optional[str]
