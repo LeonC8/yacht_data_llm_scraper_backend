@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Form
+from fastapi import FastAPI, HTTPException, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import HttpUrl
 from urllib.parse import urlparse
@@ -23,7 +23,14 @@ app.add_middleware(
 # Remove the YachtUrlInput class as we're no longer using it
 
 @app.post("/extract-yacht-data/")
-async def extract_yacht_data(url: str = Form(...)):
+async def extract_yacht_data_post(url: str = Form(...)):
+    return await process_yacht_data(url)
+
+@app.get("/extract-yacht-data/")
+async def extract_yacht_data_get(url: str = Query(...)):
+    return await process_yacht_data(url)
+
+async def process_yacht_data(url: str):
     # Validate the URL
     try:
         HttpUrl(url)

@@ -1,5 +1,6 @@
 import urllib.request
 import time
+import random
 from bs4 import BeautifulSoup
 import os
 from openai import OpenAI
@@ -8,7 +9,6 @@ from typing import Optional, List
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from urllib.parse import urlparse
 
 # OpenAI API key setup
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -39,50 +39,8 @@ class YachtData(BaseModel):
     location: Optional[str]
     equipment: Optional[List[str]]
 
-def fetch_yacht_listing(url):
-    """Fetch the HTML content of a yacht listing page using the appropriate method based on the domain."""
-    domain = urlparse(url).netloc
-
-    if domain == "www.yachtworld.com":
-        return fetch_yachtworld_listing(url)
-    else:
-        return fetch_general_listing(url)
-
-def fetch_general_listing(url):
-    """Fetch the HTML content of a yacht listing page using urllib."""
-    parsed_url = urllib.parse.urlparse(url)
-    domain = f"{parsed_url.scheme}://{parsed_url.netloc}"
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:106.0) Gecko/20100101 Firefox/106.0',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Referer': domain,
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
-    }
-
-    # First, visit the homepage to get any necessary cookies
-    home_req = urllib.request.Request(domain, headers=headers)
-    urllib.request.urlopen(home_req)
-
-    time.sleep(2)  # Wait for a bit before making the next request
-
-    # Then visit the specific listing
-    req = urllib.request.Request(url, headers=headers)
-    
-    try:
-        with urllib.request.urlopen(req) as response:
-            return response.read().decode('utf-8')
-    except urllib.error.HTTPError as e:
-        print(f"HTTP Error {e.code}: {e.reason}")
-        return None
-    except urllib.error.URLError as e:
-        print(f"URL Error: {e.reason}")
-        return None
-
-def fetch_yachtworld_listing(url, max_retries=5):
-    """Fetch the HTML content of a YachtWorld listing page using requests with retries."""
+def fetch_yacht_listing(url, max_retries=5):
+    """Fetch the HTML content of a yacht listing page using requests with retries."""
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
